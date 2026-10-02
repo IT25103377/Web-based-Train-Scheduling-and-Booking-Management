@@ -3,7 +3,7 @@
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
     <module name="TrainScheduleManagment" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.trainbooking.trainschedulemanagment.TrainScheduleManagmentApplication" />
-    <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;C:\Users\Nimith Jayamanne\Downloads\TrainScheduleManagment\auth&quot;" />
+    <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;C:\Users\HP\Downloads\SLIIT\SLIIT - Y2S1\Web-based-Train-Scheduling-and-Booking-Management\auth&quot;" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.trainbooking.trainschedulemanagment.*" />
