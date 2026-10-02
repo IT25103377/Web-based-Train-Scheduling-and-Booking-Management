@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lankan Railways | Reviews</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="top-bar">
+        <!-- Brand name -->
+        <div class="logo">
+            <span>&#10018;</span> Sri Lankan Railways
+        </div>
+
+        <!-- Admin Profile Indicator -->
+        <div class="user-profile-badge">
+            <div class="profile-avatar">A</div>
+            <div class="profile-info">
+                <span class="profile-name">Administrator</span>
+                <span class="profile-role">Super Admin</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="full-width-nav">
+        <ul>
+            <li><a th:href="@{/dashboard}">Dashboard</a></li>
+            <li><a href="#">Schedules</a></li>
+            <li><a href="#">Routes</a></li>
+            <li><a href="#">Trains</a></li>
+            <li><a href="#">Payments</a></li>
+            <li><a th:href="@{/reviews}" class="active">Reviews</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <h1>Customer Feedback</h1>
+        <a th:href="@{/dashboard}" class="btn-neon secondary">Back to Dashboard</a>
+    </div>
+
+    <section class="panel table-responsive">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Passenger</th>
+                <th>Rating</th>
+                <th>Comments</th>
+                <th>Status</th>
+                <th>Admin Reply</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="review : ${reviews}">
+                <td th:text="${review.reviewId}"></td>
+                <td style="font-weight: 600; color: #fff;" th:text="${review.userName}"></td>
+                <td>
+                    <span style="color: var(--neon-blue);" th:text="${review.rating} + ' ★'"></span>
+                </td>
+                <td th:text="${review.reviewText}"></td>
+                <td>
+                            <span class="badge"
+                                  th:classappend="${review.status == 'Approved' ? 'badge-approved' : (review.status == 'Rejected' ? 'badge-rejected' : 'badge-pending')}"
+                                  th:text="${review.status}">
+                            </span>
+                </td>
+                <td>
+                    <span th:if="${review.adminReply != null}" th:text="${review.adminReply}"></span>
+                    <form th:if="${review.adminReply == null}" th:action="@{'/reviews/' + ${review.reviewId} + '/reply'}" method="post" class="inline-action-form">
+                        <input type="text" name="reply" placeholder="Reply..." required>
+                        <button type="submit" class="btn-sm btn-approve">Send</button>
+                    </form>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 8px;">
+                        <form th:if="${review.status != 'Approved'}" th:action="@{'/reviews/' + ${review.reviewId} + '/status'}" method="post">
+                            <input type="hidden" name="status" value="Approved">
+                            <button type="submit" class="btn-sm btn-approve">Approve</button>
+                        </form>
+                        <form th:if="${review.status != 'Rejected'}" th:action="@{'/reviews/' + ${review.reviewId} + '/status'}" method="post">
+                            <input type="hidden" name="status" value="Rejected">
+                            <button type="submit" class="btn-sm btn-reject">Reject</button>
+                        </form>
+                        <form th:action="@{'/reviews/' + ${review.reviewId} + '/delete'}" method="post" onsubmit="return confirm('Delete this record?');">
+                            <button type="submit" class="btn-sm btn-delete">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lankan Railways | Passenger Feedback</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .customer-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 35px;
+            align-items: start;
+        }
+
+        .review-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: 0.3s;
+        }
+
+        .review-card:hover {
+            border-color: rgba(26, 217, 240, 0.3);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .passenger-name {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .review-stars {
+            color: var(--neon-blue);
+            font-size: 0.9rem;
+            text-shadow: 0 0 6px rgba(26, 217, 240, 0.4);
+        }
+
+        .review-body {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .admin-reply-box {
+            background: rgba(10, 17, 40, 0.6);
+            border-left: 3px solid var(--neon-green);
+            padding: 10px 14px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .admin-reply-box strong {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-reply-box p {
+            font-size: 0.8rem;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        @media (max-width: 900px) {
+            .customer-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="top-bar">
+        <div class="logo">
+            <span>&#10018;</span> Sri Lankan Railways
+        </div>
+        <div class="btn-group">
+            <a th:href="@{/dashboard}" class="btn-sm btn-approve" style="text-decoration: none;">Switch to Admin</a>
+        </div>
+    </div>
+    <nav class="full-width-nav">
+        <ul>
+            <li><a href="#">Find Trains</a></li>
+            <li><a href="#">Schedules</a></li>
+            <li><a href="#">My Bookings</a></li>
+            <li><a th:href="@{/customer/reviews}" class="active">Reviews & Ratings</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <div>
+            <h1>Passenger Experiences</h1>
+            <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 5px;">
+                Read authentic journeys or tell us about your recent trip.
+            </p>
+        </div>
+    </div>
+
+    <div class="customer-layout">
+
+        <!-- Left Side: Submission Form -->
+        <section class="panel">
+            <h2>Share Your Journey</h2>
+            <form th:action="@{/saveReview}" th:object="${review}" method="post">
+
+                <div class="input-field">
+                    <label for="userName">Your Full Name</label>
+                    <input id="userName" type="text" th:field="*{userName}" placeholder="e.g. Kasun Bandara" required>
+                </div>
+
+                <div class="input-field">
+                    <label for="rating">Service Rating</label>
+                    <select id="rating" th:field="*{rating}">
+                        <option value="5">★★★★★ - Excellent (5/5)</option>
+                        <option value="4">★★★★☆ - Very Good (4/5)</option>
+                        <option value="3">★★★☆☆ - Average (3/5)</option>
+                        <option value="2">★★☆☆☆ - Below Expectations (2/5)</option>
+                        <option value="1">★☆☆☆☆ - Poor (1/5)</option>
+                    </select>
+                </div>
+
+                <div class="input-field">
+                    <label for="reviewText">Your Comments</label>
+                    <textarea id="reviewText" th:field="*{reviewText}" rows="5"
+                              placeholder="How was the punctuality, seating comfort, or station assistance?" required></textarea>
+                </div>
+
+                <button type="submit" class="btn-neon" style="width: 100%; padding: 12px 0;">
+                    Submit Review
+                </button>
+                <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 10px; text-align: center;">
+                    * Reviews are posted publicly once verified by our moderation team.
+                </p>
+            </form>
+        </section>
+
+        <!-- Right Side: Community Feed of Approved Reviews -->
+        <section class="panel">
+            <h2>Recent Passenger Reviews</h2>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(approvedReviews)}" style="color: var(--text-dim); padding: 20px 0;">
+                <p>No verified reviews yet. Be the first to share your experience!</p>
+            </div>
+
+            <!-- Reviews Feed -->
+            <div th:each="rev : ${approvedReviews}" class="review-card">
+                <div class="review-header">
+                    <span class="passenger-name" th:text="${rev.userName}"></span>
+                    <span class="review-stars" th:text="${rev.rating} + ' ★'"></span>
+                </div>
+
+                <p class="review-body" th:text="${rev.reviewText}"></p>
+
+                <!-- Official Admin Response (if available) -->
+                <div th:if="${rev.adminReply != null and !rev.adminReply.empty}" class="admin-reply-box">
+                    <strong>Official Railway Response</strong>
+                    <p th:text="${rev.adminReply}"></p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+</body>
+</html>
