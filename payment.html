@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SriLanka Railways - Payment</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef4ff, #f8f5ff);
+            color: #1f2937;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .navbar {
+            height: 70px;
+            background: linear-gradient(90deg, #173b8f, #5b3cc4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #ffd166;
+        }
+
+        .nav-right {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        /* ================= MAIN ================= */
+
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: 45px auto;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .page-title h1 {
+            font-size: 34px;
+            color: #173b8f;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        /* ================= ERROR ================= */
+
+        .error-box {
+            max-width: 900px;
+            margin: 0 auto 30px auto;
+            padding: 18px 22px;
+            border-radius: 15px;
+            background: #fff0f0;
+            border: 1px solid #f3b6b6;
+            color: #a93232;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            box-shadow: 0 8px 22px rgba(180, 50, 50, 0.08);
+        }
+
+        .error-icon {
+            font-size: 25px;
+        }
+
+        .error-content h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .error-content p {
+            font-size: 14px;
+        }
+
+        /* ================= LAYOUT ================= */
+
+        .payment-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        /* ================= CARD ================= */
+
+        .card {
+            background: white;
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 12px 35px rgba(37, 52, 100, 0.12);
+            border: 1px solid #e7eaf4;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #e5edff, #eee7ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .card-header h2 {
+            color: #25345f;
+            font-size: 21px;
+        }
+
+        .card-header p {
+            color: #8a91a5;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        /* ================= ROUTE SELECT ================= */
+
+        .route-selects {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .select-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #394263;
+            margin-bottom: 8px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #dce1ee;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            background: #fafbff;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: #6246c8;
+            box-shadow: 0 0 0 3px rgba(98, 70, 200, 0.10);
+            background: white;
+        }
+
+        /* ================= ROUTE ================= */
+
+        .route {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0 28px;
+            padding: 20px;
+            border-radius: 16px;
+            background: #f5f7ff;
+        }
+
+        .station {
+            text-align: center;
+        }
+
+        .station .city {
+            font-size: 20px;
+            font-weight: bold;
+            color: #173b8f;
+        }
+
+        .station .label {
+            font-size: 12px;
+            color: #8a91a5;
+            margin-top: 4px;
+        }
+
+        .arrow {
+            font-size: 27px;
+            color: #6846c7;
+        }
+
+        /* ================= DETAILS ================= */
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #edf0f6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #7b8191;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #29345a;
+        }
+
+        /* ================= AMOUNT ================= */
+
+        .amount-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #edf4ff, #f1edff);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .amount-box span:first-child {
+            font-size: 15px;
+            color: #596174;
+        }
+
+        .amount {
+            font-size: 25px;
+            font-weight: bold;
+            color: #5336b6;
+        }
+
+        /* ================= PAYMENT ================= */
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #394263;
+            margin-bottom: 8px;
+        }
+
+        .payment-method {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .security {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 18px 0;
+            color: #687086;
+            font-size: 12px;
+        }
+
+        .pay-button {
+            width: 100%;
+            border: none;
+            padding: 16px;
+            border-radius: 13px;
+            background: linear-gradient(90deg, #173b8f, #6846c7);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 8px 18px rgba(83, 54, 182, 0.25);
+        }
+
+        .pay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(83, 54, 182, 0.32);
+        }
+
+        /* ================= INFO ================= */
+
+        .dynamic-info {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f5f7ff;
+            color: #596174;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* ================= FOOTER ================= */
+
+        .footer-note {
+            text-align: center;
+            margin-top: 25px;
+            color: #8a91a5;
+            font-size: 12px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 800px) {
+
+            .payment-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .route-selects {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                padding: 0 5%;
+            }
+
+            .container {
+                width: 94%;
+                margin-top: 30px;
+            }
+
+            .page-title h1 {
+                font-size: 28px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<div class="navbar">
+
+    <div class="logo">
+        🚆 SriLanka <span>Railways</span>
+    </div>
+
+    <div class="nav-right">
+        💳 Secure Payment
+    </div>
+
+</div>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container">
+
+
+    <div class="page-title">
+
+        <h1>
+            Complete Your Payment
+        </h1>
+
+        <p>
+            Securely pay for your railway booking
+        </p>
+
+    </div>
+
+
+    <!-- ================= ERROR ================= -->
+
+    <div class="error-box"
+         th:if="${error != null}">
+
+        <div class="error-icon">
+            ⚠️
+        </div>
+
+        <div class="error-content">
+
+            <h3>
+                Payment Validation Failed
+            </h3>
+
+            <p th:text="${error}">
+                Payment could not be processed.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= LAYOUT ================= -->
+
+    <div class="payment-layout">
+
+
+        <!-- ================= LEFT ================= -->
+
+        <div class="card">
+
+
+            <div class="card-header">
+
+                <div class="icon-box">
+                    🚆
+                </div>
+
+                <div>
+
+                    <h2>
+                        Trip Details
+                    </h2>
+
+                    <p>
+                        Select your journey
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= FROM / TO ================= -->
+
+            <div class="route-selects">
+
+
+                <div class="select-group">
+
+                    <label for="from">
+                        From
+                    </label>
+
+                    <select id="from"
+                            onchange="updateTrip()">
+
+                        <option value="Colombo">
+                            Colombo
+                        </option>
+
+                        <option value="Kandy">
+                            Kandy
+                        </option>
+
+                        <option value="Galle">
+                            Galle
+                        </option>
+
+                        <option value="Jaffna">
+                            Jaffna
+                        </option>
+
+                        <option value="Anuradhapura">
+                            Anuradhapura
+                        </option>
+
+                        <option value="Negombo">
+                            Negombo
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="select-group">
+
+                    <label for="to">
+                        To
+                    </label>
+
+                    <select id="to"
+                            onchange="updateTrip()">
+
+                        <option value="Kandy">
+                            Kandy
+                        </option>
+
+                        <option value="Colombo">
+                            Colombo
+                        </option>
+
+                        <option value="Galle">
+                            Galle
+                        </option>
+
+                        <option value="Jaffna">
+                            Jaffna
+                        </option>
+
+                        <option value="Anuradhapura">
+                            Anuradhapura
+                        </option>
+
+                        <option value="Negombo">
+                            Negombo
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= ROUTE DISPLAY ================= -->
+
+            <div class="route">
+
+                <div class="station">
+
+                    <div class="city"
+                         id="fromDisplay">
+
+                        Colombo
+
+                    </div>
+
+                    <div class="label">
+                        Departure
+                    </div>
+
+                </div>
+
+
+                <div class="arrow">
+                    ➜
+                </div>
+
+
+                <div class="station">
+
+                    <div class="city"
+                         id="toDisplay">
+
+                        Kandy
+
+                    </div>
+
+                    <div class="label">
+                        Destination
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= BOOKING DETAILS ================= -->
+
+            <div class="detail-row">
+
+                <span class="detail-label">
+                    Booking ID
+                </span>
+
+                <span class="detail-value"
+                      id="bookingIdDisplay">
+
+                    BK00125
+
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span class="detail-label">
+                    Travel Date
+                </span>
+
+                <span class="detail-value">
+
+                    25 September 2026
+
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span class="detail-label">
+                    Seat Number
+                </span>
+
+                <span class="detail-value">
+
+                    A12
+
+                </span>
+
+            </div>
+
+
+            <!-- ================= AMOUNT ================= -->
+
+            <div class="amount-box">
+
+                <span>
+                    Total Amount
+                </span>
+
+                <span class="amount"
+                      id="amountDisplay">
+
+                    Rs. 2,500.00
+
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ================= RIGHT ================= -->
+
+        <div class="card">
+
+
+            <div class="card-header">
+
+                <div class="icon-box">
+                    💳
+                </div>
+
+                <div>
+
+                    <h2>
+                        Payment Information
+                    </h2>
+
+                    <p>
+                        Enter your payment details
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= FORM ================= -->
+
+            <form action="/process-payment"
+                  method="post">
+
+
+                <!-- DYNAMIC BOOKING ID -->
+
+                <input type="hidden"
+                       name="bookingId"
+                       id="bookingIdInput"
+                       value="BK00125">
+
+
+                <!-- DYNAMIC AMOUNT -->
+
+                <input type="hidden"
+                       name="amount"
+                       id="amountInput"
+                       value="2500">
+
+
+                <!-- PAYMENT METHOD -->
+
+                <div class="form-group">
+
+                    <label for="paymentMethod">
+                        Payment Method
+                    </label>
+
+                    <select id="paymentMethod"
+                            name="paymentMethod"
+                            required>
+
+                        <option value="Credit / Debit Card">
+                            💳 Credit / Debit Card
+                        </option>
+
+                        <option value="Online Banking">
+                            🏦 Online Banking
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- CARD NUMBER -->
+
+                <div class="form-group">
+
+                    <label>
+                        Card Number
+                    </label>
+
+                    <input type="text"
+                           placeholder="•••• •••• •••• ••••"
+                           maxlength="19">
+
+                </div>
+
+
+                <!-- EXPIRY + CVV -->
+
+                <div class="payment-method">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Expiry Date
+                        </label>
+
+                        <input type="text"
+                               placeholder="MM / YY"
+                               maxlength="5">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            CVV
+                        </label>
+
+                        <input type="password"
+                               placeholder="•••"
+                               maxlength="3">
+
+                    </div>
+
+                </div>
+
+
+                <!-- INFO -->
+
+                <div class="dynamic-info">
+
+                    🔄 Booking ID and ticket price update automatically
+                    when you change the journey.
+
+                </div>
+
+
+                <!-- SECURITY -->
+
+                <div class="security">
+
+                    🔒 Your payment information is securely processed
+
+                </div>
+
+
+                <!-- PAY -->
+
+                <button type="submit"
+                        class="pay-button"
+                        id="payButton">
+
+                    💳 Pay Rs. 2,500.00
+
+                </button>
+
+
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <div class="footer-note">
+
+        🔐 Secure Payment
+        &nbsp; • &nbsp;
+
+        🚆 Railway Booking System
+        &nbsp; • &nbsp;
+
+        © 2026 SriLanka Railways
+
+    </div>
+
+
+</div>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+    /*
+       Route prices for demonstration.
+       These are sample railway fares for the university project.
+    */
+
+    const routePrices = {
+
+        "Colombo-Kandy": 2500,
+        "Kandy-Colombo": 2500,
+
+        "Colombo-Galle": 1800,
+        "Galle-Colombo": 1800,
+
+        "Colombo-Jaffna": 3200,
+        "Jaffna-Colombo": 3200,
+
+        "Colombo-Anuradhapura": 2200,
+        "Anuradhapura-Colombo": 2200,
+
+        "Colombo-Negombo": 1200,
+        "Negombo-Colombo": 1200,
+
+        "Kandy-Galle": 2800,
+        "Galle-Kandy": 2800,
+
+        "Kandy-Jaffna": 3500,
+        "Jaffna-Kandy": 3500,
+
+        "Kandy-Anuradhapura": 1800,
+        "Anuradhapura-Kandy": 1800,
+
+        "Kandy-Negombo": 2200,
+        "Negombo-Kandy": 2200,
+
+        "Galle-Jaffna": 4000,
+        "Jaffna-Galle": 4000,
+
+        "Galle-Anuradhapura": 3000,
+        "Anuradhapura-Galle": 3000,
+
+        "Galle-Negombo": 1800,
+        "Negombo-Galle": 1800,
+
+        "Jaffna-Anuradhapura": 2000,
+        "Anuradhapura-Jaffna": 2000,
+
+        "Jaffna-Negombo": 3000,
+        "Negombo-Jaffna": 3000,
+
+        "Anuradhapura-Negombo": 1800,
+        "Negombo-Anuradhapura": 1800
+
+    };
+
+
+    function updateTrip() {
+
+
+        const from =
+            document.getElementById("from").value;
+
+
+        const to =
+            document.getElementById("to").value;
+
+
+        /* Prevent same location */
+
+        if (from === to) {
+
+            alert("Departure and destination cannot be the same.");
+
+            document.getElementById("to").selectedIndex = 0;
+
+            updateTrip();
+
+            return;
+
+        }
+
+
+        /* Update route display */
+
+        document.getElementById("fromDisplay")
+            .innerText = from;
+
+
+        document.getElementById("toDisplay")
+            .innerText = to;
+
+
+        /* Find price */
+
+        const routeKey =
+            from + "-" + to;
+
+
+        let price =
+            routePrices[routeKey];
+
+
+        /* Default price */
+
+        if (!price) {
+
+            price = 2000;
+
+        }
+
+
+        /* Generate dynamic booking ID */
+
+        const bookingId =
+            generateBookingId(from, to);
+
+
+        /* Update booking ID on screen */
+
+        document.getElementById("bookingIdDisplay")
+            .innerText = bookingId;
+
+
+        /* Update hidden booking ID */
+
+        document.getElementById("bookingIdInput")
+            .value = bookingId;
+
+
+        /* Update price on screen */
+
+        document.getElementById("amountDisplay")
+            .innerText =
+            "Rs. " +
+            price.toLocaleString("en-US", {
+                minimumFractionDigits: 2
+            });
+
+
+        /* Update hidden amount */
+
+        document.getElementById("amountInput")
+            .value = price;
+
+
+        /* Update button */
+
+        document.getElementById("payButton")
+            .innerText =
+            "💳 Pay Rs. " +
+            price.toLocaleString("en-US", {
+                minimumFractionDigits: 2
+            });
+
+    }
+
+
+    function generateBookingId(from, to) {
+
+
+        /*
+           Create a booking ID based on
+           selected locations + random number.
+        */
+
+        const fromCode =
+            from.substring(0, 2).toUpperCase();
+
+
+        const toCode =
+            to.substring(0, 2).toUpperCase();
+
+
+        const randomNumber =
+            Math.floor(
+                100 + Math.random() * 900
+            );
+
+
+        return "BK-" +
+               fromCode +
+               toCode +
+               randomNumber;
+
+    }
+
+
+    /*
+       Run once when page loads.
+    */
+
+    updateTrip();
+
+</script>
+
+
+</body>
+
+</html>

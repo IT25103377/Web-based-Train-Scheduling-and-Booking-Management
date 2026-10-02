@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Delete Payment Record</title>
+
+  <style>
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, #eef4ff, #f7f2ff);
+        min-height: 100vh;
+        color: #1f2937;
+    }
+
+    /* ================= NAVBAR ================= */
+
+    nav {
+        background: linear-gradient(90deg, #173b8f, #5b3cc4);
+        color: white;
+        padding: 18px 60px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        margin-left: 25px;
+        font-size: 14px;
+    }
+
+    nav a:hover {
+        text-decoration: underline;
+    }
+
+    /* ================= CONTAINER ================= */
+
+    .container {
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+
+    /* ================= CARD ================= */
+
+    .card {
+        background: white;
+        border-radius: 18px;
+        padding: 35px;
+
+        box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+        color: #173b8f;
+        margin-bottom: 10px;
+    }
+
+    .description {
+        color: #6b7280;
+        margin-bottom: 25px;
+    }
+
+    /* ================= WARNING ================= */
+
+    .warning {
+        background: #fff7ed;
+        border-left: 5px solid #f97316;
+
+        padding: 15px;
+
+        border-radius: 8px;
+
+        margin-bottom: 25px;
+
+        color: #9a3412;
+
+        line-height: 1.6;
+    }
+
+    /* ================= FORM ================= */
+
+    label {
+        display: block;
+
+        font-weight: bold;
+
+        margin-bottom: 8px;
+    }
+
+    input {
+        width: 100%;
+
+        padding: 14px;
+
+        border: 1px solid #d1d5db;
+
+        border-radius: 8px;
+
+        font-size: 15px;
+
+        margin-bottom: 18px;
+    }
+
+    input:focus {
+        outline: none;
+
+        border-color: #5b3cc4;
+    }
+
+    /* ================= BUTTONS ================= */
+
+    button {
+        border: none;
+
+        padding: 13px 24px;
+
+        border-radius: 8px;
+
+        font-size: 15px;
+
+        font-weight: bold;
+
+        cursor: pointer;
+    }
+
+    .search-btn {
+        background: #173b8f;
+
+        color: white;
+    }
+
+    .search-btn:hover {
+        background: #102d70;
+    }
+
+    .delete-btn {
+        background: #dc2626;
+
+        color: white;
+
+        margin-top: 10px;
+    }
+
+    .delete-btn:hover {
+        background: #b91c1c;
+    }
+
+    .cancel-btn {
+        display: inline-block;
+
+        background: #e5e7eb;
+
+        color: #374151;
+
+        padding: 13px 24px;
+
+        border-radius: 8px;
+
+        text-decoration: none;
+
+        font-weight: bold;
+
+        margin-left: 8px;
+    }
+
+    /* ================= PAYMENT DETAILS ================= */
+
+    .details {
+        margin-top: 30px;
+
+        background: #f8fafc;
+
+        border-radius: 12px;
+
+        padding: 25px;
+
+        border: 1px solid #e5e7eb;
+    }
+
+    .details h2 {
+        color: #173b8f;
+
+        margin-bottom: 20px;
+    }
+
+    .detail-row {
+        display: flex;
+
+        justify-content: space-between;
+
+        padding: 12px 0;
+
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: #6b7280;
+
+        font-weight: bold;
+    }
+
+    .detail-value {
+        font-weight: bold;
+
+        color: #111827;
+    }
+
+    /* ================= CONFIRMATION ================= */
+
+    .confirmation {
+        margin-top: 25px;
+
+        background: #fef2f2;
+
+        border: 1px solid #fecaca;
+
+        padding: 20px;
+
+        border-radius: 12px;
+    }
+
+    .confirmation h3 {
+        color: #991b1b;
+
+        margin-bottom: 10px;
+    }
+
+    .confirmation p {
+        color: #7f1d1d;
+
+        margin-bottom: 15px;
+
+        line-height: 1.5;
+    }
+
+    /* ================= MESSAGE ================= */
+
+    .message {
+        margin-top: 20px;
+
+        padding: 14px;
+
+        border-radius: 8px;
+
+        background: #eef2ff;
+
+        color: #3730a3;
+
+        font-weight: bold;
+    }
+
+    /* ================= BACK LINK ================= */
+
+    .back-btn {
+        display: inline-block;
+
+        margin-top: 25px;
+
+        text-decoration: none;
+
+        color: #173b8f;
+
+        font-weight: bold;
+    }
+
+    .back-btn:hover {
+        text-decoration: underline;
+    }
+
+    /* ================= FOOTER ================= */
+
+    .footer {
+        text-align: center;
+
+        color: #6b7280;
+
+        margin-top: 40px;
+
+        padding-bottom: 30px;
+
+        font-size: 13px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav>
+
+  <div class="logo">
+    SriLanka Railways
+  </div>
+
+  <div>
+
+    <a href="/payment">
+      Payment
+    </a>
+
+    <a href="/payment-history">
+      Payment History
+    </a>
+
+    <a href="/refund-history">
+      Refund History
+    </a>
+
+  </div>
+
+</nav>
+
+
+<!-- ================= MAIN CONTAINER ================= -->
+
+<div class="container">
+
+  <div class="card">
+
+    <h1>
+      Delete Payment Record
+    </h1>
+
+    <p class="description">
+      Administrative Payment Record Maintenance
+    </p>
+
+
+    <!-- ================= WARNING ================= -->
+
+    <div class="warning">
+
+      ⚠️ <strong>Authorized Staff Only</strong>
+
+      <br>
+
+      This function is intended for authorized staff
+      to remove invalid, duplicate, or test payment records.
+
+      <br>
+
+      Customer payment records should not be deleted
+      through this function.
+
+    </div>
+
+
+    <!-- ================= SEARCH PAYMENT ================= -->
+
+    <form action="/delete-search" method="post">
+
+      <label for="paymentId">
+        Payment ID
+      </label>
+
+      <input
+              type="text"
+              id="paymentId"
+              name="paymentId"
+              th:value="${paymentId}"
+              placeholder="Example: PAY1789474486998"
+              required
+      >
+
+      <button
+              type="submit"
+              class="search-btn">
+
+        🔍 Search Payment
+
+      </button>
+
+    </form>
+
+
+    <!-- ================= MESSAGE ================= -->
+
+    <div
+            class="message"
+            th:if="${message != null}"
+            th:text="${message}">
+    </div>
+
+
+    <!-- ================= PAYMENT DETAILS ================= -->
+
+    <div
+            class="details"
+            th:if="${paymentFound == true}">
+
+      <h2>
+        Payment Details
+      </h2>
+
+
+      <div class="detail-row">
+
+                <span class="detail-label">
+                    Payment ID
+                </span>
+
+        <span
+                class="detail-value"
+                th:text="${payment.paymentId}">
+                </span>
+
+      </div>
+
+
+      <div class="detail-row">
+
+                <span class="detail-label">
+                    Booking ID
+                </span>
+
+        <span
+                class="detail-value"
+                th:text="${payment.bookingId}">
+                </span>
+
+      </div>
+
+
+      <div class="detail-row">
+
+                <span class="detail-label">
+                    Amount
+                </span>
+
+        <span
+                class="detail-value"
+                th:text="'Rs. ' + ${#numbers.formatDecimal(payment.amount, 1, 2)}">
+                </span>
+
+      </div>
+
+
+      <div class="detail-row">
+
+                <span class="detail-label">
+                    Payment Method
+                </span>
+
+        <span
+                class="detail-value"
+                th:text="${payment.paymentMethod}">
+                </span>
+
+      </div>
+
+
+      <div class="detail-row">
+
+                <span class="detail-label">
+                    Status
+                </span>
+
+        <span
+                class="detail-value"
+                th:text="${payment.status}">
+                </span>
+
+      </div>
+
+
+      <div class="detail-row">
+
+                <span class="detail-label">
+                    Payment Date
+                </span>
+
+        <span
+                class="detail-value"
+                th:text="${payment.paymentDate}">
+                </span>
+
+      </div>
+
+
+      <!-- ================= CONFIRM DELETE ================= -->
+
+      <div
+              class="confirmation"
+              th:if="${deleteConfirmed == true}">
+
+        <h3>
+          ⚠️ Confirm Deletion
+        </h3>
+
+        <p>
+          You are about to permanently delete this
+          payment record from the database.
+        </p>
+
+
+        <form
+                action="/delete-payment"
+                method="post">
+
+          <input
+                  type="hidden"
+                  name="paymentId"
+                  th:value="${payment.paymentId}"
+          >
+
+          <button
+                  type="submit"
+                  class="delete-btn">
+
+            🗑️ Confirm Delete
+
+          </button>
+
+          <a
+                  href="/delete-payment"
+                  class="cancel-btn">
+
+            Cancel
+
+          </a>
+
+        </form>
+
+      </div>
+
+
+      <!-- ================= FIRST DELETE BUTTON ================= -->
+
+      <div
+              th:if="${deleteConfirmed != true}"
+              style="margin-top: 20px;">
+
+        <form
+                action="/delete-confirm"
+                method="post">
+
+          <input
+                  type="hidden"
+                  name="paymentId"
+                  th:value="${payment.paymentId}"
+          >
+
+          <button
+                  type="submit"
+                  class="delete-btn">
+
+            🗑️ Continue to Delete
+
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= BACK ================= -->
+
+    <a
+            href="/payment-history"
+            class="back-btn">
+
+      ← Back to Payment History
+
+    </a>
+
+  </div>
+
+
+  <!-- ================= FOOTER ================= -->
+
+  <div class="footer">
+
+    SriLanka Railways Payment Management System
+
+  </div>
+
+</div>
+
+
+</body>
+
+</html>

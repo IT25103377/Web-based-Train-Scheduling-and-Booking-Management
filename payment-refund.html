@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Refund Management | SriLanka Railways</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f8faff);
+            color: #173b8f;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 45px 0;
+        }
+
+        /* ================= HEADER ================= */
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            color: #173b8f;
+        }
+
+        .header p {
+            font-size: 19px;
+            color: #59739f;
+        }
+
+        /* ================= STEPS ================= */
+
+        .steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0 45px;
+            gap: 15px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #657a9d;
+            font-size: 18px;
+        }
+
+        .circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .active .circle {
+            background: #5146e5;
+        }
+
+        .active {
+            color: #173b8f;
+            font-weight: bold;
+        }
+
+        .line {
+            width: 75px;
+            height: 3px;
+            background: #cbd5e1;
+        }
+
+        /* ================= CARD ================= */
+
+        .card {
+            background: white;
+            border-radius: 25px;
+            padding: 42px;
+            box-shadow: 0 15px 40px rgba(40, 70, 120, 0.12);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #173b8f;
+        }
+
+        .description {
+            color: #59739f;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        /* ================= MESSAGE ================= */
+
+        .message {
+            padding: 18px 22px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .warning-message {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* ================= FORM ================= */
+
+        label {
+            display: block;
+            font-size: 17px;
+            font-weight: bold;
+            color: #25345f;
+            margin-bottom: 10px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 17px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #5146e5;
+            box-shadow: 0 0 0 3px rgba(81, 70, 229, 0.1);
+        }
+
+        button {
+            border: none;
+            padding: 16px 28px;
+            border-radius: 12px;
+            background: #5146e5;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        /* ================= PAYMENT DETAILS ================= */
+
+        .details {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8faff;
+            border: 1px solid #dbe5f5;
+            border-radius: 18px;
+        }
+
+        .details h3 {
+            font-size: 23px;
+            margin-bottom: 20px;
+            color: #173b8f;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 14px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #64748b;
+        }
+
+        .value {
+            color: #25345f;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        /* ================= REFUND BOX ================= */
+
+        .refund-box {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 20px;
+            background: linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #f5f3ff
+            );
+            border: 1px solid #dbeafe;
+        }
+
+        .refund-box h3 {
+            font-size: 25px;
+            margin-bottom: 20px;
+        }
+
+        .refund-id {
+            font-size: 22px;
+            color: #5146e5;
+            font-weight: bold;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: bold;
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .secondary-button {
+            text-decoration: none;
+            background: #e8edff;
+            color: #173b8f;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .secondary-button:hover {
+            background: #dbe4ff;
+        }
+
+        .danger-button {
+            background: #dc2626;
+        }
+
+        .danger-button:hover {
+            background: #b91c1c;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 700px) {
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .steps {
+                flex-direction: column;
+            }
+
+            .line {
+                width: 3px;
+                height: 30px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .row {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .value {
+                text-align: left;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <!-- ================= HEADER ================= -->
+
+    <div class="header">
+
+        <h1>Refund Management</h1>
+
+        <p>
+            Securely search, verify and process payment refunds.
+        </p>
+
+    </div>
+
+
+    <!-- ================= STEPS ================= -->
+
+    <div class="steps">
+
+        <div class="step active">
+
+            <div class="circle">1</div>
+
+            <span>Find Payment</span>
+
+        </div>
+
+
+        <div class="line"></div>
+
+
+        <div class="step">
+
+            <div class="circle">2</div>
+
+            <span>Confirm Refund</span>
+
+        </div>
+
+
+        <div class="line"></div>
+
+
+        <div class="step">
+
+            <div class="circle">3</div>
+
+            <span>Refund Receipt</span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SEARCH PAYMENT -->
+    <!-- ================================================= -->
+
+    <div class="card">
+
+        <h2>Step 1 — Find Payment</h2>
+
+        <p class="description">
+
+            Enter the Payment ID to search for the transaction
+            before starting the refund process.
+
+        </p>
+
+
+        <!-- MESSAGE -->
+
+        <div
+                th:if="${refundMessage != null}"
+                class="message"
+                th:classappend="${alreadyRefunded == true} ? ' warning-message' : (${refundProcessed == true} ? ' success-message' : ' error-message')"
+                th:text="${refundMessage}">
+        </div>
+
+
+        <!-- SEARCH FORM -->
+
+        <form
+                action="/refund-search"
+                method="post">
+
+            <label for="paymentId">
+                Payment ID
+            </label>
+
+            <input
+                    type="text"
+                    id="paymentId"
+                    name="paymentId"
+                    th:value="${paymentId}"
+                    placeholder="Example: PAY1789708298584"
+                    required>
+
+            <button type="submit">
+                🔍 Search Payment
+            </button>
+
+        </form>
+
+
+        <!-- ================================================= -->
+        <!-- PAYMENT DETAILS -->
+        <!-- ================================================= -->
+
+        <div
+                class="details"
+                th:if="${paymentFound == true}">
+
+            <h3>
+                Payment Details
+            </h3>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Payment ID
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${payment.paymentId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Booking ID
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${payment.bookingId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Amount
+                </span>
+
+                <span
+                        class="value"
+                        th:text="'Rs. ' + ${#numbers.formatDecimal(payment.amount, 1, 2)}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Payment Method
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${payment.paymentMethod}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Payment Status
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${payment.status}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Payment Date
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${payment.paymentDate}">
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- EXISTING REFUND DETAILS -->
+        <!-- ================================================= -->
+
+        <div
+                class="refund-box"
+                th:if="${alreadyRefunded == true and refund != null}">
+
+            <h3>
+                ✓ Refund Already Processed
+            </h3>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund ID
+                </span>
+
+                <span
+                        class="value refund-id"
+                        th:text="${refund.refundId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Payment ID
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refund.paymentId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Booking ID
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refund.bookingId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Amount
+                </span>
+
+                <span
+                        class="value"
+                        th:text="'Rs. ' + ${#numbers.formatDecimal(refund.refundAmount, 1, 2)}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Reason
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refund.refundReason}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Date
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refund.refundDate}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Status
+                </span>
+
+                <span class="value">
+
+                    <span
+                            class="status"
+                            th:text="${refund.refundStatus}">
+                    </span>
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- NEW REFUND FORM -->
+        <!-- ================================================= -->
+
+        <div
+                th:if="${refundEligible == true and alreadyRefunded != true}"
+                class="refund-box">
+
+            <h3>
+                Step 2 — Refund Confirmation
+            </h3>
+
+            <p class="description">
+
+                This payment is eligible for a refund.
+                Please select a reason and continue.
+
+            </p>
+
+
+            <form
+                    action="/refund-confirm"
+                    method="post">
+
+                <input
+                        type="hidden"
+                        name="paymentId"
+                        th:value="${payment.paymentId}">
+
+
+                <label for="refundReason">
+                    Refund Reason
+                </label>
+
+
+                <select
+                        id="refundReason"
+                        name="refundReason"
+                        required>
+
+                    <option value="">
+                        -- Select Refund Reason --
+                    </option>
+
+                    <option value="Customer Request">
+                        Customer Request
+                    </option>
+
+                    <option value="Booking Cancelled">
+                        Booking Cancelled
+                    </option>
+
+                    <option value="Payment Error">
+                        Payment Error
+                    </option>
+
+                    <option value="Duplicate Payment">
+                        Duplicate Payment
+                    </option>
+
+                    <option value="Service Issue">
+                        Service Issue
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+
+                <button type="submit">
+                    Continue to Refund Confirmation
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- FINAL REFUND CONFIRMATION -->
+        <!-- ================================================= -->
+
+        <div
+                th:if="${refundConfirmed == true and alreadyRefunded != true}"
+                class="refund-box">
+
+            <h3>
+                Step 3 — Confirm Refund
+            </h3>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Payment ID
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${payment.paymentId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Amount
+                </span>
+
+                <span
+                        class="value"
+                        th:text="'Rs. ' + ${#numbers.formatDecimal(payment.amount, 1, 2)}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Reason
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refundReason}">
+                </span>
+
+            </div>
+
+
+            <form
+                    action="/process-refund"
+                    method="post"
+                    style="margin-top:25px;">
+
+                <input
+                        type="hidden"
+                        name="paymentId"
+                        th:value="${payment.paymentId}">
+
+                <input
+                        type="hidden"
+                        name="refundReason"
+                        th:value="${refundReason}">
+
+
+                <button
+                        type="submit"
+                        class="danger-button">
+
+                    💳 Confirm & Process Refund
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- REFUND SUCCESS -->
+        <!-- ================================================= -->
+
+        <div
+                th:if="${refundProcessed == true and refund != null}"
+                class="refund-box">
+
+            <h3>
+                ✓ Refund Successfully Processed
+            </h3>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund ID
+                </span>
+
+                <span
+                        class="value refund-id"
+                        th:text="${refund.refundId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Payment ID
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refund.paymentId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Booking ID
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refund.bookingId}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Amount
+                </span>
+
+                <span
+                        class="value"
+                        th:text="'Rs. ' + ${#numbers.formatDecimal(refund.refundAmount, 1, 2)}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Reason
+                </span>
+
+                <span
+                        class="value"
+                        th:text="${refund.refundReason}">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <span class="label">
+                    Refund Status
+                </span>
+
+                <span class="value">
+
+                    <span
+                            class="status"
+                            th:text="${refund.refundStatus}">
+                    </span>
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- NAVIGATION -->
+        <!-- ================================================= -->
+
+        <div class="buttons">
+
+            <a
+                    href="/payment"
+                    class="secondary-button">
+
+                ← Back to Payment
+
+            </a>
+
+
+            <a
+                    href="/refund-history"
+                    class="secondary-button">
+
+                📋 Refund History
+
+            </a>
+
+
+            <a
+                    href="/payment-history"
+                    class="secondary-button">
+
+                💳 Payment History
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
