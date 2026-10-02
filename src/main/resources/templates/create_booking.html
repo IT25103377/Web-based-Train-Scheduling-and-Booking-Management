@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Booking | SriLanka Railways</title>
+    <link rel="stylesheet" th:href="@{/test1c.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="top-bar">
+            <div class="logo">
+                <span class="logo-icon">&#128644;</span> SriLanka Railways
+            </div>
+        </div>
+        <nav class="full-width-nav">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a th:href="@{/bookings}">My Bookings</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" style="max-width: 600px;">
+        <h2>Create Train Booking</h2>
+        <form th:action="@{/bookings}" th:object="${booking}" method="post">
+            <div class="form-group">
+                <label>Booking Number (Auto-generated)</label>
+                <input type="text" th:field="*{bookingNumber}" readonly />
+            </div>
+            <div class="form-group">
+                <label>Passenger Name</label>
+                <input type="text" th:field="*{passengerName}" required placeholder="Enter full name"/>
+            </div>
+            <div class="form-group">
+                <label>Train Route & Schedule</label>
+                <select th:field="*{trainSchedule}" id="routeSelect" onchange="updateAmount()" required>
+                    <option value="" data-price="">-- Select a Train Route --</option>
+                    <option value="Colombo Fort to Kandy (08:00 AM)" data-price="1200.00">Colombo Fort -> Kandy (08:00 AM)</option>
+                    <option value="Colombo Fort to Galle (10:30 AM)" data-price="800.00">Colombo Fort -> Galle (10:30 AM)</option>
+                    <option value="Kandy to Badulla (09:00 AM)" data-price="1500.00">Kandy -> Badulla (09:00 AM)</option>
+                    <option value="Colombo Fort to Jaffna (05:45 AM)" data-price="2500.00">Colombo Fort -> Jaffna (05:45 AM)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date of Journey</label>
+                <input type="date" th:field="*{bookingDate}" required />
+            </div>
+            <div class="form-group">
+                <label>Amount (Rs) - Auto calculated</label>
+                <input type="number" step="0.01" th:field="*{bookingAmount}" id="amountInput" readonly required />
+            </div>
+            <!-- Status field removed. It is handled automatically by the backend. -->
+            
+            <div style="margin-top: 30px;">
+                <button type="submit" class="btn-hero">Confirm Booking</button>
+                <a th:href="@{/bookings}" class="btn-hero outline" style="margin-left: 10px;">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function updateAmount() {
+            var select = document.getElementById("routeSelect");
+            var selectedOption = select.options[select.selectedIndex];
+            var price = selectedOption.getAttribute("data-price");
+            document.getElementById("amountInput").value = price;
+        }
+    </script>
+</body>
+</html>

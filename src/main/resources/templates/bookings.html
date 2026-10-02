@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Bookings | SriLanka Railways</title>
+    <link rel="stylesheet" th:href="@{/test1c.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="top-bar">
+            <div class="logo">
+                <span class="logo-icon">&#128644;</span> SriLanka Railways
+            </div>
+        </div>
+        <nav class="full-width-nav">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a th:href="@{/bookings}" style="color: var(--btn-neon);">My Bookings</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>My Train Bookings</h2>
+        <a th:href="@{/bookings/new}" class="btn-sm" style="text-decoration:none; display:inline-block; margin-bottom: 20px;">+ Create New Booking</a>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Booking Number</th>
+                    <th>Passenger</th>
+                    <th>Train Schedule</th>
+                    <th>Date</th>
+                    <th>Amount (Rs)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="booking : ${bookings}">
+                    <td th:text="${booking.bookingNumber}"></td>
+                    <td th:text="${booking.passengerName}"></td>
+                    <td th:text="${booking.trainSchedule}"></td>
+                    <td th:text="${booking.bookingDate}"></td>
+                    <td th:text="${booking.bookingAmount}"></td>
+                    <td th:text="${booking.bookingStatus}"></td>
+                    <td>
+                        <a th:href="@{/bookings/edit/{id}(id=)}" class="action-btn edit-btn">Edit</a>
+                        <a th:href="@{/bookings/delete/{id}(id=)}" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this booking?');">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p th:if="" style="text-align:center; color:var(--text-dim); margin-top:30px;">No bookings found. Create one now!</p>
+    </div>
+</body>
+</html>
