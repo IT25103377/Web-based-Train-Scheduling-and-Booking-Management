@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Schedules | SriLanka Railways</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<header class="top-header">
+    <div class="brand">
+        <div class="brand-icon">🚆</div>
+        <div>
+            <h2>SriLanka Railways</h2>
+            <span>Train Schedule Management</span>
+        </div>
+    </div>
+
+    <a class="add-btn" th:href="@{/schedules/add}">
+        + Add New Schedule
+    </a>
+</header>
+
+<nav class="navbar">
+    <a href="#">Home</a>
+    <a class="active" th:href="@{/schedules}">Schedules</a>
+    <a href="#">Trains</a>
+    <a href="#">Stations</a>
+</nav>
+
+<main class="container">
+
+    <div class="page-heading">
+        <div>
+            <p class="small-title">SRI LANKA RAILWAYS</p>
+            <h1>Train Schedules</h1>
+            <p class="description">
+                View and manage train schedules, routes and operating times.
+            </p>
+        </div>
+    </div>
+    <!-- SEARCH BAR -->
+    <div class="search-section">
+        <form th:action="@{/schedules/search}" method="get" class="search-form">
+
+            <input type="text"
+                   name="trainNumber"
+                   th:value="${searchValue}"
+                   placeholder="Enter Train Number (Example: 1001)">
+
+            <button type="submit" class="search-btn">
+                Search
+            </button>
+
+            <a th:href="@{/schedules}" class="clear-btn">
+                Clear
+            </a>
+
+        </form>
+    </div>
+    <!-- DATE FILTER -->
+    <div class="date-filter-section">
+
+        <form th:action="@{/schedules/filter-date}"
+              method="get"
+              class="date-filter-form">
+
+            <input type="date"
+                   name="operatingDate"
+                   th:value="${selectedDate}"
+                   required>
+
+            <button type="submit" class="filter-btn">
+                Filter by Date
+            </button>
+
+            <a th:href="@{/schedules}" class="clear-btn">
+                Clear
+            </a>
+
+        </form>
+
+    </div>
+
+    <div class="schedule-card">
+
+        <div class="table-header">
+            <h3>Schedule List</h3>
+            <span>Railway Operations</span>
+        </div>
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Train</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Date</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Platform</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="schedule : ${schedules}">
+
+                    <td th:text="${schedule.scheduleId}"></td>
+
+                    <td>
+                        <strong th:text="${schedule.train.trainNumber}"></strong>
+                        <br>
+                        <span class="train-name"
+                              th:text="${schedule.train.trainName}">
+                        </span>
+                    </td>
+
+                    <td th:text="${schedule.departureStation.stationName}"></td>
+
+                    <td th:text="${schedule.arrivalStation.stationName}"></td>
+
+                    <td th:text="${schedule.operatingDate}"></td>
+
+                    <td th:text="${schedule.departureTime}"></td>
+
+                    <td th:text="${schedule.arrivalTime}"></td>
+
+                    <td th:text="${schedule.platformNumber}"></td>
+
+                    <td>
+                        <span class="status-badge"
+                              th:text="${schedule.status}">
+                        </span>
+                    </td>
+
+                    <td class="actions">
+
+                        <a class="edit-btn"
+                           th:href="@{/schedules/edit/{id}(id=${schedule.scheduleId})}">
+                            Edit
+                        </a>
+
+                        <a class="delete-btn"
+                           th:href="@{/schedules/delete/{id}(id=${schedule.scheduleId})}"
+                           onclick="return confirm('Are you sure you want to delete this schedule?')">
+                            Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(schedules)}">
+                    <td colspan="10" class="empty-message">
+                        No train schedules available.
+                    </td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p>© 2026 SriLanka Railways | Train Schedule Management System</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TrainScheduleManagmentApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+    <module name="TrainScheduleManagment" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.trainbooking.trainschedulemanagment.TrainScheduleManagmentApplication" />
+    <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;C:\Users\Nimith Jayamanne\Downloads\TrainScheduleManagment\auth&quot;" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.trainbooking.trainschedulemanagment.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
