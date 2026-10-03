@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Payment Verification - RailConnect</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef4ff, #f7f1ff);
+            color: #29345a;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            height: 70px;
+            background: linear-gradient(90deg, #173b8f, #6846c7);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #ffd166;
+        }
+
+        .nav-right {
+            font-size: 14px;
+        }
+
+        /* MAIN */
+        .container {
+            width: 90%;
+            max-width: 850px;
+            margin: 45px auto;
+        }
+
+        /* HEADER */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .shield {
+            width: 75px;
+            height: 75px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e5edff, #eee7ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 10px 25px rgba(83, 54, 182, 0.12);
+        }
+
+        .page-header h1 {
+            font-size: 31px;
+            color: #173b8f;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: #7b8295;
+            font-size: 15px;
+        }
+
+        /* CARD */
+        .card {
+            background: white;
+            border-radius: 23px;
+            padding: 32px;
+            box-shadow: 0 14px 40px rgba(37, 52, 100, 0.12);
+            border: 1px solid #e6eaf4;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 25px;
+        }
+
+        .icon-box {
+            width: 45px;
+            height: 45px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #e6eeff, #eee8ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+        }
+
+        .card-title h2 {
+            font-size: 20px;
+            color: #29345a;
+        }
+
+        .card-title p {
+            color: #8a91a5;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #394263;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #dce1ee;
+            border-radius: 12px;
+            background: #fafbff;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #6246c8;
+            box-shadow: 0 0 0 3px rgba(98, 70, 200, 0.10);
+            background: white;
+        }
+
+        .verify-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #173b8f, #6846c7);
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 7px 18px rgba(83, 54, 182, 0.22);
+            transition: 0.25s;
+        }
+
+        .verify-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* RESULT */
+        .result {
+            margin-top: 28px;
+            padding: 23px;
+            border-radius: 16px;
+        }
+
+        .result-success {
+            background: #eaf8f0;
+            border: 1px solid #c9efd9;
+        }
+
+        .result-error {
+            background: #fff0f0;
+            border: 1px solid #ffd0d0;
+        }
+
+        .result-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .result-heading h3 {
+            font-size: 18px;
+        }
+
+        .success-heading {
+            color: #198754;
+        }
+
+        .error-heading {
+            color: #c0392b;
+        }
+
+        /* RESULT DETAILS */
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .detail-box {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 14px;
+            border-radius: 11px;
+        }
+
+        .detail-label {
+            display: block;
+            color: #7c8497;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #29345a;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status {
+            color: #198754;
+        }
+
+        .message {
+            margin-top: 15px;
+            color: #596174;
+            font-size: 13px;
+        }
+
+        /* SECURITY */
+        .security-note {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            color: #7b8295;
+            font-size: 12px;
+        }
+
+        /* BACK */
+        .back-button {
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            text-decoration: none;
+            padding: 13px;
+            border-radius: 12px;
+            background: #f1f2f6;
+            color: #5e6577;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #e1e3ea;
+        }
+
+        .back-button:hover {
+            background: #e8eaf0;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #8a91a5;
+            font-size: 12px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 650px) {
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 94%;
+                margin-top: 30px;
+            }
+
+            .card {
+                padding: 23px;
+            }
+
+            .page-header h1 {
+                font-size: 27px;
+            }
+
+            .navbar {
+                padding: 0 5%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    <div class="logo">
+        🚆 Rail<span>Connect</span>
+    </div>
+
+    <div class="nav-right">
+        🔐 Secure Verification
+    </div>
+
+</div>
+
+
+<!-- MAIN -->
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="page-header">
+
+        <div class="shield">
+            🔐
+        </div>
+
+        <h1>Payment Verification</h1>
+
+        <p>
+            Verify your payment transaction securely
+        </p>
+
+    </div>
+
+
+    <!-- CARD -->
+    <div class="card">
+
+        <div class="card-title">
+
+            <div class="icon-box">
+                ✓
+            </div>
+
+            <div>
+                <h2>Verify Transaction</h2>
+                <p>Enter your Payment ID below</p>
+            </div>
+
+        </div>
+
+
+        <!-- FORM -->
+        <form action="/verify-payment" method="post">
+
+            <div class="form-group">
+
+                <label for="paymentId">
+                    Payment ID
+                </label>
+
+                <input type="text"
+                       id="paymentId"
+                       name="paymentId"
+                       th:value="${paymentId}"
+                       placeholder="Example: PAY1789397521420"
+                       required>
+
+            </div>
+
+
+            <button type="submit"
+                    class="verify-button">
+
+                ✓ Verify Payment
+
+            </button>
+
+        </form>
+
+
+        <!-- SUCCESS RESULT -->
+        <div class="result result-success"
+             th:if="${payment != null}">
+
+            <div class="result-heading success-heading">
+
+                <span style="font-size: 23px;">✓</span>
+
+                <h3>Payment Verified</h3>
+
+            </div>
+
+
+            <div class="details">
+
+                <div class="detail-box">
+
+                    <span class="detail-label">
+                        Payment ID
+                    </span>
+
+                    <span class="detail-value"
+                          th:text="${payment.paymentId}">
+                        PAY000000
+                    </span>
+
+                </div>
+
+
+                <div class="detail-box">
+
+                    <span class="detail-label">
+                        Booking ID
+                    </span>
+
+                    <span class="detail-value"
+                          th:text="${payment.bookingId}">
+                        BK00000
+                    </span>
+
+                </div>
+
+
+                <div class="detail-box">
+
+                    <span class="detail-label">
+                        Amount
+                    </span>
+
+                    <span class="detail-value"
+                          th:text="'Rs. ' + ${#numbers.formatDecimal(payment.amount, 1, 2)}">
+                        Rs. 2,500.00
+                    </span>
+
+                </div>
+
+
+                <div class="detail-box">
+
+                    <span class="detail-label">
+                        Status
+                    </span>
+
+                    <span class="detail-value status"
+                          th:text="'✓ ' + ${payment.status}">
+                        ✓ SUCCESS
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <p class="message">
+                ✓ Payment successfully verified from the database.
+            </p>
+
+        </div>
+
+
+        <!-- ERROR RESULT -->
+        <div class="result result-error"
+             th:if="${payment == null and paymentId != null}">
+
+            <div class="result-heading error-heading">
+
+                <span style="font-size: 23px;">!</span>
+
+                <h3>Payment Not Found</h3>
+
+            </div>
+
+            <p class="message">
+                No payment was found for the entered Payment ID.
+                Please check the ID and try again.
+            </p>
+
+        </div>
+
+
+        <!-- SECURITY -->
+        <div class="security-note">
+            🔒 Payment information is verified securely using the system database.
+        </div>
+
+
+        <!-- BACK -->
+        <a href="/payment"
+           class="back-button">
+
+            ← Back to Payment
+
+        </a>
+
+    </div>
+
+
+    <div class="footer">
+
+        🔐 Secure Payment &nbsp; • &nbsp;
+        🚆 Railway Booking System &nbsp; • &nbsp;
+        © 2026 RailConnect
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

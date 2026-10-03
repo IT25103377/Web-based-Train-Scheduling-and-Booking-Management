@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Payment Successful - RailConnect</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef4ff, #f7f1ff);
+            color: #26304d;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            height: 70px;
+            background: linear-gradient(90deg, #173b8f, #6846c7);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #ffd166;
+        }
+
+        .nav-status {
+            font-size: 14px;
+        }
+
+        /* MAIN */
+        .container {
+            width: 90%;
+            max-width: 850px;
+            margin: 45px auto;
+        }
+
+        /* SUCCESS HEADER */
+        .success-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .success-icon {
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d9fbe7, #bdf3d3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 43px;
+            box-shadow: 0 10px 25px rgba(38, 166, 91, 0.15);
+        }
+
+        .success-header h1 {
+            font-size: 32px;
+            color: #198754;
+            margin-bottom: 8px;
+        }
+
+        .success-header p {
+            color: #737b91;
+            font-size: 15px;
+        }
+
+        /* MAIN CARD */
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 14px 40px rgba(37, 52, 100, 0.13);
+            border: 1px solid #e6eaf4;
+        }
+
+        /* PAYMENT SUMMARY */
+        .summary-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .summary-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #e6eeff, #eee8ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+        }
+
+        .summary-title h2 {
+            font-size: 20px;
+            color: #29345a;
+        }
+
+        .summary-title p {
+            font-size: 12px;
+            color: #8a91a5;
+            margin-top: 3px;
+        }
+
+        /* DETAILS GRID */
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-box {
+            padding: 18px;
+            border-radius: 15px;
+            background: #f8f9fd;
+            border: 1px solid #edf0f6;
+        }
+
+        .detail-label {
+            display: block;
+            font-size: 12px;
+            color: #858ca0;
+            margin-bottom: 7px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: bold;
+            color: #29345a;
+        }
+
+        .amount-box {
+            background: linear-gradient(135deg, #edf4ff, #f1ebff);
+        }
+
+        .amount-value {
+            font-size: 22px;
+            color: #5838bd;
+            font-weight: bold;
+        }
+
+        /* STATUS */
+        .status-success {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        /* DIVIDER */
+        .divider {
+            height: 1px;
+            background: #e8ebf2;
+            margin: 28px 0;
+        }
+
+        /* BUTTONS */
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 13px;
+        }
+
+        .button {
+            text-decoration: none;
+            text-align: center;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .ticket-button {
+            background: linear-gradient(90deg, #173b8f, #6846c7);
+            color: white;
+            box-shadow: 0 7px 18px rgba(83, 54, 182, 0.22);
+        }
+
+        .verify-button {
+            background: #eaf8f0;
+            color: #198754;
+            border: 1px solid #c9efd9;
+        }
+
+        .history-button {
+            background: #eef3ff;
+            color: #3156a6;
+            border: 1px solid #dbe4ff;
+        }
+
+        .refund-button {
+            background: #fff4e8;
+            color: #c56a13;
+            border: 1px solid #ffe1bf;
+        }
+
+        .back-button {
+            display: block;
+            margin-top: 13px;
+            background: #f1f2f6;
+            color: #5e6577;
+            border: 1px solid #e1e3ea;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #8b91a3;
+            font-size: 12px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 650px) {
+
+            .details,
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 94%;
+                margin-top: 30px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .success-header h1 {
+                font-size: 27px;
+            }
+
+            .navbar {
+                padding: 0 5%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    <div class="logo">
+        🚆 Rail<span>Connect</span>
+    </div>
+
+    <div class="nav-status">
+        ✓ Payment Completed
+    </div>
+
+</div>
+
+
+<!-- MAIN -->
+<div class="container">
+
+    <!-- SUCCESS HEADER -->
+    <div class="success-header">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <h1>Payment Successful!</h1>
+
+        <p>
+            Your payment has been successfully processed.
+        </p>
+
+    </div>
+
+
+    <!-- PAYMENT CARD -->
+    <div class="card">
+
+        <div class="summary-title">
+
+            <div class="summary-icon">
+                💳
+            </div>
+
+            <div>
+                <h2>Payment Summary</h2>
+                <p>Transaction details</p>
+            </div>
+
+        </div>
+
+
+        <!-- DETAILS -->
+        <div class="details">
+
+            <div class="detail-box">
+
+                <span class="detail-label">
+                    Payment ID
+                </span>
+
+                <span class="detail-value"
+                      th:text="${payment.paymentId}">
+                    PAY000000
+                </span>
+
+            </div>
+
+
+            <div class="detail-box">
+
+                <span class="detail-label">
+                    Booking ID
+                </span>
+
+                <span class="detail-value"
+                      th:text="${payment.bookingId}">
+                    BK00000
+                </span>
+
+            </div>
+
+
+            <div class="detail-box amount-box">
+
+                <span class="detail-label">
+                    Amount Paid
+                </span>
+
+                <span class="amount-value"
+                      th:text="'Rs. ' + ${#numbers.formatDecimal(payment.amount, 1, 2)}">
+                    Rs. 2,500.00
+                </span>
+
+            </div>
+
+
+            <div class="detail-box">
+
+                <span class="detail-label">
+                    Payment Method
+                </span>
+
+                <span class="detail-value"
+                      th:text="${payment.paymentMethod}">
+                    Credit / Debit Card
+                </span>
+
+            </div>
+
+
+            <div class="detail-box">
+
+                <span class="detail-label">
+                    Payment Status
+                </span>
+
+                <span class="status-success"
+                      th:text="'✓ ' + ${payment.status}">
+                    ✓ SUCCESS
+                </span>
+
+            </div>
+
+
+            <div class="detail-box">
+
+                <span class="detail-label">
+                    Payment Date
+                </span>
+
+                <span class="detail-value"
+                      th:text="${#temporals.format(payment.paymentDate, 'dd MMMM yyyy, HH:mm')}">
+                    14 September 2026, 10:00
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="divider"></div>
+
+
+        <!-- ACTION BUTTONS -->
+        <div class="button-grid">
+
+            <!-- Generate E-Ticket -->
+            <a class="button ticket-button"
+               th:href="@{/e-ticket(paymentId=${payment.paymentId})}">
+                🎫 Generate E-Ticket
+            </a>
+
+
+            <!-- Verify Payment -->
+            <a class="button verify-button"
+               th:href="@{/payment-verification(paymentId=${payment.paymentId})}">
+                ✓ Verify Payment
+            </a>
+
+
+            <!-- Payment History -->
+            <a class="button history-button"
+               href="/payment-history">
+                📋 Payment History
+            </a>
+
+
+            <!-- Refund -->
+            <a class="button refund-button"
+               th:href="@{/payment-refund(paymentId=${payment.paymentId})}">
+                ↩ Process Refund
+            </a>
+
+        </div>
+
+
+        <!-- BACK -->
+        <a class="button back-button"
+           href="/payment">
+            ← Back to Payment
+        </a>
+
+    </div>
+
+
+    <div class="footer">
+        🔐 Secure Payment &nbsp; • &nbsp;
+        🚆 Railway Booking System &nbsp; • &nbsp;
+        © 2026 RailConnect
+    </div>
+
+</div>
+
+</body>
+</html>
