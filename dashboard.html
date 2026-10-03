@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lankan Railways | Admin Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="top-bar">
+        <!-- Brand name -->
+        <div class="logo">
+            <span>&#10018;</span> Sri Lankan Railways
+        </div>
+
+        <!-- Admin Profile Indicator -->
+        <div class="user-profile-badge">
+            <div class="profile-avatar">A</div>
+            <div class="profile-info">
+                <span class="profile-name">Administrator</span>
+                <span class="profile-role">Super Admin</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="full-width-nav">
+        <ul>
+            <li><a th:href="@{/dashboard}" class="active">Dashboard</a></li>
+            <li><a href="#">Schedules</a></li>
+            <li><a href="#">Routes</a></li>
+            <li><a href="#">Trains</a></li>
+            <li><a href="#">Payments</a></li>
+            <li><a th:href="@{/reviews}">Reviews</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <h1>System Overview</h1>
+    </div>
+
+    <!-- 1. Operations Counters -->
+    <section class="cards-grid">
+        <div class="stat-card">
+            <h3>Registered Users</h3>
+            <p th:text="${stats.registeredUsers}">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Active Trains</h3>
+            <p th:text="${stats.activeTrains}">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Routes</h3>
+            <p th:text="${stats.totalRoutes}">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Scheduled Trips</h3>
+            <p th:text="${stats.scheduledTrips}">0</p>
+        </div>
+    </section>
+
+    <!-- 2. Review Status Overview -->
+    <h2 class="section-title">Passenger Feedback & Review Status</h2>
+    <section class="cards-grid">
+        <div class="stat-card">
+            <h3>Total Reviews</h3>
+            <p th:text="${stats.totalReviews}">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Approved Reviews</h3>
+            <p th:text="${stats.approvedReviews}">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Pending Moderation</h3>
+            <p th:text="${stats.pendingReviews}">0</p>
+        </div>
+    </section>
+
+    <!-- 3. Quick Actions with Customer Portal Link -->
+    <section class="panel">
+        <h2>Quick Actions</h2>
+        <div class="btn-group">
+            <a th:href="@{/reviews}" class="btn-neon">Manage Reviews</a>
+            <a th:href="@{/customer/reviews}" class="btn-neon secondary">Customer Review Portal</a>
+            <a href="#" class="btn-neon secondary">Generate Reports</a>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

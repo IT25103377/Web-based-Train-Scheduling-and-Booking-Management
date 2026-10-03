@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailAdmin | Submit Feedback</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="top-bar">
+        <div class="logo">
+            <span>&#10018;</span> Sri Lankan Railways
+        </div>
+    </div>
+    <nav class="full-width-nav">
+        <ul>
+            <li><a th:href="@{/dashboard}">Dashboard</a></li>
+            <li><a th:href="@{/reviews}">Reviews</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <div class="panel form-panel">
+        <h2 style="font-size: 1.6rem; margin-bottom: 24px;">Submit Passenger Feedback</h2>
+        <form th:action="@{/saveReview}" th:object="${review}" method="post">
+            <div class="input-field">
+                <label for="userName">Passenger Name</label>
+                <input id="userName" type="text" th:field="*{userName}" placeholder="e.g. Kamal Silva" required>
+            </div>
+
+            <div class="input-field">
+                <label for="rating">Rating</label>
+                <select id="rating" th:field="*{rating}">
+                    <option value="5">5 ★ - Excellent</option>
+                    <option value="4">4 ★ - Very Good</option>
+                    <option value="3">3 ★ - Good</option>
+                    <option value="2">2 ★ - Fair</option>
+                    <option value="1">1 ★ - Poor</option>
+                </select>
+            </div>
+
+            <div class="input-field">
+                <label for="reviewText">Your Experience</label>
+                <textarea id="reviewText" th:field="*{reviewText}" rows="4" placeholder="Write feedback regarding scheduling, cleanliness, or train delay..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-neon" style="width: 100%; padding: 12px 0;">Post Feedback</button>
+        </form>
+    </div>
+</main>
+
+</body>
+</html>
