@@ -10,9 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -23,39 +21,30 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final CompanionRepository companionRepository;
-    private final PortalContentRepository portalContentRepository;
     private final TrainScheduleRepository trainScheduleRepository;
     private final BookingRepository bookingRepository;
     private final BookingPassengerRepository bookingPassengerRepository;
-    private final FinancialTransactionRepository financialTransactionRepository;
-    private final SupportTicketRepository supportTicketRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(RoleRepository roleRepository,
                            UserRepository userRepository,
                            CompanionRepository companionRepository,
-                           PortalContentRepository portalContentRepository,
                            TrainScheduleRepository trainScheduleRepository,
                            BookingRepository bookingRepository,
                            BookingPassengerRepository bookingPassengerRepository,
-                           FinancialTransactionRepository financialTransactionRepository,
-                           SupportTicketRepository supportTicketRepository,
                            PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.companionRepository = companionRepository;
-        this.portalContentRepository = portalContentRepository;
         this.trainScheduleRepository = trainScheduleRepository;
         this.bookingRepository = bookingRepository;
         this.bookingPassengerRepository = bookingPassengerRepository;
-        this.financialTransactionRepository = financialTransactionRepository;
-        this.supportTicketRepository = supportTicketRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
-        log.info("Initializing system roles, accounts, timetables, and demo data...");
+        log.info("Initializing User Management system roles, accounts, and demo companions...");
 
         // 1. Seed Roles
         Role adminRole = createRoleIfNotFound("ROLE_ADMIN");
@@ -68,35 +57,31 @@ public class DataInitializer implements CommandLineRunner {
         Role staffRole = createRoleIfNotFound("ROLE_STATION_STAFF");
 
         // 2. Seed Default Staff & Passenger Accounts
-        User adminUser = createUserIfNotFound("admin", "Admin@123", "System Administrator",
+        createUserIfNotFound("admin", "Admin@123", "System Administrator",
                 "+94770000000", "admin@trainbooking.com", adminRole);
 
         createUserIfNotFound("coordinator", "Coord@123", "Timetable Coordinator",
                 "+94770000001", "coordinator@trainbooking.com", coordinatorRole);
 
-        createUserIfNotFound("stationstaff", "Staff@123", "Colombo Fort Station Officer",
+        createUserIfNotFound("stationstaff", "Staff@123", "Station Staff Member",
                 "+94770000002", "station@trainbooking.com", staffRole);
 
         createUserIfNotFound("opsmanager", "Ops@123", "Fleet Operations Manager",
                 "+94770000003", "ops@trainbooking.com", opsRole);
 
-        User supervisorUser = createUserIfNotFound("supervisor", "Super@123", "Support & Refund Supervisor",
+        createUserIfNotFound("supervisor", "Super@123", "Customer Service Supervisor",
                 "+94770000004", "supervisor@trainbooking.com", supervisorRole);
 
         createUserIfNotFound("finance", "Finance@123", "Chief Finance Officer",
                 "+94770000005", "finance@trainbooking.com", financeRole);
 
-        User stationMasterUser = createUserIfNotFound("stationmaster", "Station@123", "Station Master",
+        createUserIfNotFound("stationmaster", "Station@123", "Station Master",
                 "+94770000006", "stationmaster@trainbooking.com", stationMasterRole);
-        if (stationMasterUser.getFullName() != null && stationMasterUser.getFullName().contains("Colombo Fort")) {
-            stationMasterUser.setFullName("Station Master");
-            userRepository.save(stationMasterUser);
-        }
 
         User passengerUser = createUserIfNotFound("passenger_demo", "Pass@123", "Saman Perera",
                 "+94770000007", "saman@gmail.com", passengerRole);
 
-        // 3. Seed Companions for Passenger
+        // 3. Seed Companions for Demo Passenger
         if (companionRepository.findAllByUserUserId(passengerUser.getUserId()).isEmpty()) {
             Companion c1 = new Companion();
             c1.setUser(passengerUser);
@@ -118,14 +103,11 @@ public class DataInitializer implements CommandLineRunner {
         // 4. Seed Train Schedules
         String today = LocalDate.now().toString();
         TrainSchedule s1 = createScheduleIfNotFound("1005", "Podi Menike", "Colombo Fort", "Badulla", "05:55", "15:30", today, 120, 118, BigDecimal.valueOf(1200.00), "3", "ON_TIME", 0);
-        TrainSchedule s2 = createScheduleIfNotFound("1015", "Senkadagala Menike", "Colombo Fort", "Kandy", "07:00", "09:35", today, 150, 150, BigDecimal.valueOf(600.00), "1", "ON_TIME", 0);
-        TrainSchedule s3 = createScheduleIfNotFound("8056", "Ruhunu Kumari", "Colombo Fort", "Galle", "06:50", "08:50", today, 180, 180, BigDecimal.valueOf(500.00), "4", "DELAYED", 15);
-        TrainSchedule s4 = createScheduleIfNotFound("4077", "Yal Devi", "Colombo Fort", "Jaffna", "05:45", "12:45", today, 200, 200, BigDecimal.valueOf(1500.00), "2", "ON_TIME", 0);
-        TrainSchedule s5 = createScheduleIfNotFound("1029", "Udarata Menike", "Colombo Fort", "Kandy", "15:35", "18:15", today, 140, 140, BigDecimal.valueOf(600.00), "1", "ON_TIME", 0);
-        TrainSchedule s6 = createScheduleIfNotFound("8057", "Galle Commuter", "Galle", "Colombo Fort", "14:15", "16:20", today, 160, 160, BigDecimal.valueOf(500.00), "2", "ON_TIME", 0);
-        TrainSchedule s7 = createScheduleIfNotFound("1006", "Badulla Express", "Badulla", "Colombo Fort", "08:30", "18:10", today, 120, 120, BigDecimal.valueOf(1200.00), "1", "ON_TIME", 0);
+        createScheduleIfNotFound("1015", "Senkadagala Menike", "Colombo Fort", "Kandy", "07:00", "09:35", today, 150, 150, BigDecimal.valueOf(600.00), "1", "ON_TIME", 0);
+        createScheduleIfNotFound("8056", "Ruhunu Kumari", "Colombo Fort", "Galle", "06:50", "08:50", today, 180, 180, BigDecimal.valueOf(500.00), "4", "DELAYED", 15);
+        createScheduleIfNotFound("4077", "Yal Devi", "Colombo Fort", "Jaffna", "05:45", "12:45", today, 200, 200, BigDecimal.valueOf(1500.00), "2", "ON_TIME", 0);
 
-        // 5. Seed a Sample Booking for Demonstration
+        // 5. Seed a Sample Booking for Booking History Demonstration
         if (bookingRepository.findAllByUserUserIdOrderByCreatedAtDesc(passengerUser.getUserId()).isEmpty()) {
             Booking booking = new Booking();
             booking.setBookingReference("BK-" + System.currentTimeMillis());
@@ -157,65 +139,9 @@ public class DataInitializer implements CommandLineRunner {
 
             bookingPassengerRepository.save(bp1);
             bookingPassengerRepository.save(bp2);
-
-            // Financial transaction
-            FinancialTransaction txn = new FinancialTransaction();
-            txn.setTransactionRef("TXN-" + System.currentTimeMillis());
-            txn.setBooking(savedBooking);
-            txn.setAmount(BigDecimal.valueOf(1980.00));
-            txn.setTransactionType("PAYMENT");
-            txn.setPaymentMethod("CREDIT_CARD");
-            txn.setStatus("SUCCESS");
-            financialTransactionRepository.save(txn);
-
-            // Seed sample Support Ticket
-            SupportTicket ticket = new SupportTicket();
-            ticket.setTicketNumber("TKT-" + (System.currentTimeMillis() - 10000));
-            ticket.setUser(passengerUser);
-            ticket.setBooking(savedBooking);
-            ticket.setCategory("QUERY");
-            ticket.setSubject("Inquiry on bicycle carriage on Podi Menike");
-            ticket.setDescription("Can I carry a foldable bicycle in the luggage compartment on train 1005?");
-            ticket.setStatus("RESOLVED");
-            ticket.setResolutionNotes("Foldable bicycles are permitted in the brake van subject to a 200 LKR parcel surcharge.");
-            ticket.setResolvedBy(supervisorUser);
-            supportTicketRepository.save(ticket);
         }
 
-        // 6. Seed Starter Landing Page CMS Content
-        createPortalContentIfNotFound(
-                "ALERT_BANNER",
-                "Service Alert",
-                "Platform upgrades in progress at Colombo Fort. Please confirm platform numbers on the live display board before boarding.",
-                "LANDING_PAGE",
-                adminUser
-        );
-
-        createPortalContentIfNotFound(
-                "HERO_TITLE",
-                "Hero Headline",
-                "Modern Rail Scheduling & Instant Ticket Booking",
-                "LANDING_PAGE",
-                adminUser
-        );
-
-        createPortalContentIfNotFound(
-                "HERO_SUBTITLE",
-                "Hero Subtitle",
-                "Real-time train tracking, smart companion profiles with student & senior discounts, and role-based staff operations.",
-                "LANDING_PAGE",
-                adminUser
-        );
-
-        createPortalContentIfNotFound(
-                "ABOUT_PORTAL",
-                "About Our Rail System",
-                "The National Train Scheduling and Booking Portal provides enterprise-grade rail management, live station manifests, timetable adjustments, and transparent ticketing.",
-                "LANDING_PAGE",
-                adminUser
-        );
-
-        log.info("System data initialization complete with all 7 RBAC roles and timetable feeds.");
+        log.info("User Management data initialization complete with RBAC roles, staff accounts, and demo passenger history.");
     }
 
     private Role createRoleIfNotFound(String roleName) {
@@ -267,17 +193,5 @@ public class DataInitializer implements CommandLineRunner {
             return trainScheduleRepository.save(s);
         });
     }
-
-    private void createPortalContentIfNotFound(String key, String title, String value, String category, User adminUser) {
-        if (portalContentRepository.findByContentKey(key).isEmpty()) {
-            PortalContent content = PortalContent.builder()
-                    .contentKey(key)
-                    .title(title)
-                    .contentValue(value)
-                    .category(category)
-                    .updatedBy(adminUser)
-                    .build();
-            portalContentRepository.save(content);
-        }
-    }
 }
+

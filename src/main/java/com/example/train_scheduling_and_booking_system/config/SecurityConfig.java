@@ -52,28 +52,12 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/h2-console/**",
-                                "/api/auth/**",
-                                "/api/public/**",
-                                "/api/schedules/search"
+                                "/api/auth/**"
                         ).permitAll()
-                        // Admin-only endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // Unified Profile & Password Management (Available to all authenticated roles)
+                        // Unified Profile & Password Management (Available to all authenticated roles: Passengers & Staff)
                         .requestMatchers("/api/user/**").authenticated()
-                        // Passenger endpoints (bookings, companion profiles, customer tickets)
-                        .requestMatchers("/api/passenger/**", "/api/bookings/**", "/api/support/my-tickets/**").hasAnyRole("PASSENGER", "ADMIN")
-                        // Operations Manager endpoints
-                        .requestMatchers("/api/operations/**").hasAnyRole("OPERATIONS_MANAGER", "ADMIN")
-                        // Customer Service Supervisor endpoints
-                        .requestMatchers("/api/support/supervisor/**").hasAnyRole("CUSTOMER_SERVICE_SUPERVISOR", "ADMIN")
-                        // Schedule Coordinator endpoints
-                        .requestMatchers("/api/schedules", "/api/schedules/**", "/api/routes", "/api/routes/**").hasAnyRole("SCHEDULE_COORDINATOR", "ADMIN")
-                        // Finance Officer endpoints
-                        .requestMatchers("/api/finance/**").hasAnyRole("FINANCE_OFFICER", "ADMIN")
-                        // Station Master endpoints
-                        .requestMatchers("/api/station-master/**").hasAnyRole("STATION_MASTER", "ADMIN")
-                        // Station Staff endpoints
-                        .requestMatchers("/api/station/**").hasAnyRole("STATION_STAFF", "ADMIN")
+                        // Passenger endpoints (profile, password, companion management, booking history)
+                        .requestMatchers("/api/passenger/**", "/api/bookings/**").authenticated()
                         // Any other endpoint requires authentication
                         .anyRequest().authenticated()
                 )

@@ -28,17 +28,7 @@ class SubsystemIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("Public Endpoint: Fetch Landing CMS Content without authentication")
-    void testGetPublicLandingContent() throws Exception {
-        mockMvc.perform(get("/api/public/landing-content"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].contentKey").exists());
-    }
-
-    @Test
-    @DisplayName("Auth: Register new passenger and verify JWT token & default ROLE_PASSENGER")
+    @DisplayName("1. Auth: Register new passenger and verify JWT token & default ROLE_PASSENGER")
     void testPassengerRegistrationAndLogin() throws Exception {
         String uniqueUsername = "passenger_" + System.currentTimeMillis();
         String uniquePhone = "+94" + (100000000 + (long) (Math.random() * 899999999));
@@ -91,210 +81,44 @@ class SubsystemIntegrationTest {
     }
 
     @Test
-    @DisplayName("Passenger Profile & Travel Companion Full CRUD Flow")
-    void testPassengerProfileAndCompanionCrud() throws Exception {
-        // 1. Register a passenger
-        String username = "traveler_" + System.currentTimeMillis();
-        String phone = "+94" + (200000000 + (long) (Math.random() * 799999999));
+    @DisplayName("2. Staff Logins: Coordinator, Supervisor, Finance Officer, Station Staff, Admin")
+    void testStaffMembersLogin() throws Exception {
+        String[][] staffCredentials = {
+                {"coordinator", "Coord@123", "ROLE_SCHEDULE_COORDINATOR"},
+                {"supervisor", "Super@123", "ROLE_CUSTOMER_SERVICE_SUPERVISOR"},
+                {"finance", "Finance@123", "ROLE_FINANCE_OFFICER"},
+                {"opsmanager", "Ops@123", "ROLE_OPERATIONS_MANAGER"},
+                {"stationmaster", "Station@123", "ROLE_STATION_MASTER"},
+                {"stationstaff", "Staff@123", "ROLE_STATION_STAFF"},
+                {"admin", "Admin@123", "ROLE_ADMIN"}
+        };
 
-        RegisterRequest registerReq = RegisterRequest.builder()
-                .username(username)
-                .password("Travel@123")
-                .fullName("John Traveler")
-                .phoneNumber(phone)
-                .email(username + "@travel.com")
-                .build();
+        for (String[] cred : staffCredentials) {
+            LoginRequest staffLogin = LoginRequest.builder()
+                    .username(cred[0])
+                    .password(cred[1])
+                    .build();
 
-        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerReq)))
-                .andExpect(status().isCreated())
-                .andReturn();
+            MvcResult result = mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(staffLogin)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data.token").isNotEmpty())
+                    .andReturn();
 
-        ApiResponse<AuthResponse> auth = objectMapper.readValue(
-                regResult.getResponse().getContentAsString(),
-                new TypeReference<>() {}
-        );
-        String passengerToken = "Bearer " + auth.getData().getToken();
-
-        // 2. Get Profile
-        mockMvc.perform(get("/api/passenger/profile")
-                        .header("Authorization", passengerToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.username").value(username))
-                .andExpect(jsonPath("$.data.fullName").value("John Traveler"));
-
-        // 3. Update Profile
-        ProfileUpdateRequest updateReq = ProfileUpdateRequest.builder()
-                .fullName("John Traveler Updated")
-                .phoneNumber(phone)
-                .email(username + "_new@travel.com")
-                .build();
-
-        mockMvc.perform(put("/api/passenger/profile")
-                        .header("Authorization", passengerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.fullName").value("John Traveler Updated"));
-
-        // 4. Change Password with correct and invalid old password
-        PasswordChangeRequest invalidChange = PasswordChangeRequest.builder()
-                .oldPassword("WrongPassword")
-                .newPassword("NewTravel@123")
-                .build();
-
-        mockMvc.perform(put("/api/passenger/change-password")
-                        .header("Authorization", passengerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidChange)))
-                .andExpect(status().isBadRequest());
-
-        PasswordChangeRequest validChange = PasswordChangeRequest.builder()
-                .oldPassword("Travel@123")
-                .newPassword("NewTravel@123")
-                .build();
-
-        mockMvc.perform(put("/api/passenger/change-password")
-                        .header("Authorization", passengerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validChange)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Password changed successfully"));
-
-        // 5. Add Travel Companion
-        CompanionRequest companionReq = CompanionRequest.builder()
-                .fullName("Alice Traveler")
-                .nicOrPassport("NIC987654321V")
-                .concessionType(ConcessionType.STUDENT)
-                .concessionRef("STU-2026-99")
-                .build();
-
-        MvcResult compResult = mockMvc.perform(post("/api/passenger/companions")
-                        .header("Authorization", passengerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(companionReq)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.fullName").value("Alice Traveler"))
-                .andExpect(jsonPath("$.data.concessionType").value("STUDENT"))
-                .andReturn();
-
-        ApiResponse<CompanionResponse> compResponse = objectMapper.readValue(
-                compResult.getResponse().getContentAsString(),
-                new TypeReference<>() {}
-        );
-        Long companionId = compResponse.getData().getCompanionId();
-
-        // 6. List Companions
-        mockMvc.perform(get("/api/passenger/companions")
-                        .header("Authorization", passengerToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].companionId").value(companionId));
-
-        // 7. Update Companion
-        CompanionRequest compUpdateReq = CompanionRequest.builder()
-                .fullName("Alice Traveler Smith")
-                .nicOrPassport("NIC987654321V")
-                .concessionType(ConcessionType.SENIOR)
-                .concessionRef("SEN-7788")
-                .build();
-
-        mockMvc.perform(put("/api/passenger/companions/" + companionId)
-                        .header("Authorization", passengerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(compUpdateReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.fullName").value("Alice Traveler Smith"))
-                .andExpect(jsonPath("$.data.concessionType").value("SENIOR"));
-
-        // 8. Delete Companion
-        mockMvc.perform(delete("/api/passenger/companions/" + companionId)
-                        .header("Authorization", passengerToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Companion deleted successfully"));
-
-        // Verify companion list is now empty
-        mockMvc.perform(get("/api/passenger/companions")
-                        .header("Authorization", passengerToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isEmpty());
+            ApiResponse<AuthResponse> response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {}
+            );
+            assertThat(response.getData().getRoles()).contains(cred[2]);
+        }
     }
 
     @Test
-    @DisplayName("Admin CMS: Admin can update landing page content, passenger is forbidden")
-    void testAdminCmsAndRbacProtection() throws Exception {
-        // 1. Admin login
-        LoginRequest adminLogin = LoginRequest.builder()
-                .username("admin")
-                .password("Admin@123")
-                .build();
-
-        MvcResult adminResult = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(adminLogin)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        ApiResponse<AuthResponse> adminAuth = objectMapper.readValue(
-                adminResult.getResponse().getContentAsString(),
-                new TypeReference<>() {}
-        );
-        String adminToken = "Bearer " + adminAuth.getData().getToken();
-
-        // 2. Admin updates ALERT_BANNER
-        ContentUpdateRequest updateReq = ContentUpdateRequest.builder()
-                .title("Urgent System Maintenance")
-                .contentValue("Heavy monsoon warning. All coastal lines running at reduced speeds.")
-                .category("LANDING_PAGE")
-                .build();
-
-        mockMvc.perform(put("/api/admin/content/ALERT_BANNER")
-                        .header("Authorization", adminToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.contentKey").value("ALERT_BANNER"))
-                .andExpect(jsonPath("$.data.title").value("Urgent System Maintenance"));
-
-        // 3. Register passenger
-        String passUsername = "passenger_rbac_" + System.currentTimeMillis();
-        String passPhone = "+94" + (300000000 + (long) (Math.random() * 699999999));
-        RegisterRequest regReq = RegisterRequest.builder()
-                .username(passUsername)
-                .password("Pass@12345")
-                .fullName("Regular Passenger")
-                .phoneNumber(passPhone)
-                .build();
-
-        MvcResult passResult = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(regReq)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        ApiResponse<AuthResponse> passAuth = objectMapper.readValue(
-                passResult.getResponse().getContentAsString(),
-                new TypeReference<>() {}
-        );
-        String passToken = "Bearer " + passAuth.getData().getToken();
-
-        // 4. Passenger attempting to access admin CMS endpoint -> 403 Forbidden
-        mockMvc.perform(put("/api/admin/content/ALERT_BANNER")
-                        .header("Authorization", passToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateReq)))
-                .andExpect(status().isForbidden());
-
-        // 5. Unauthenticated request to admin endpoint -> 401 Unauthorized
-        mockMvc.perform(get("/api/admin/content"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("RBAC: Coordinator & Station Staff Access Restrictions")
-    void testCoordinatorAndStationStaffRbac() throws Exception {
-        // Coordinator login
+    @DisplayName("3. Profile & Password Management: Passenger & Staff Profile Updates and Password Changes")
+    void testProfileAndChangePassword() throws Exception {
+        // Test with coordinator staff account
         LoginRequest coordLogin = LoginRequest.builder()
                 .username("coordinator")
                 .password("Coord@123")
@@ -312,47 +136,167 @@ class SubsystemIntegrationTest {
         );
         String coordToken = "Bearer " + coordAuth.getData().getToken();
 
-        // Station staff login
-        LoginRequest staffLogin = LoginRequest.builder()
-                .username("stationstaff")
-                .password("Staff@123")
+        // 1. Get Profile
+        mockMvc.perform(get("/api/user/profile").header("Authorization", coordToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.username").value("coordinator"));
+
+        // 2. Update Profile
+        ProfileUpdateRequest updateProfileReq = ProfileUpdateRequest.builder()
+                .fullName("Senior Timetable Coordinator")
+                .phoneNumber("+94770000001")
+                .email("coordinator_lead@trainbooking.com")
                 .build();
 
-        MvcResult staffResult = mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(put("/api/user/profile")
+                        .header("Authorization", coordToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(staffLogin)))
+                        .content(objectMapper.writeValueAsString(updateProfileReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.fullName").value("Senior Timetable Coordinator"))
+                .andExpect(jsonPath("$.data.email").value("coordinator_lead@trainbooking.com"));
+
+        // 3. Change Password
+        PasswordChangeRequest changePassReq = PasswordChangeRequest.builder()
+                .oldPassword("Coord@123")
+                .newPassword("Coord@NewPass456")
+                .build();
+
+        mockMvc.perform(put("/api/user/change-password")
+                        .header("Authorization", coordToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePassReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Password changed successfully"));
+
+        // Verify login with new password
+        LoginRequest newPassLogin = LoginRequest.builder()
+                .username("coordinator")
+                .password("Coord@NewPass456")
+                .build();
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newPassLogin)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("4. Travel Companion Management: Complete CRUD Flow")
+    void testCompanionCrud() throws Exception {
+        // Register passenger
+        String username = "companion_user_" + System.currentTimeMillis();
+        String phone = "+94" + (200000000 + (long) (Math.random() * 799999999));
+
+        RegisterRequest registerReq = RegisterRequest.builder()
+                .username(username)
+                .password("Pass@123")
+                .fullName("Family Organizer")
+                .phoneNumber(phone)
+                .build();
+
+        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerReq)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        ApiResponse<AuthResponse> auth = objectMapper.readValue(
+                regResult.getResponse().getContentAsString(),
+                new TypeReference<>() {}
+        );
+        String token = "Bearer " + auth.getData().getToken();
+
+        // 1. Add Companion
+        CompanionRequest companionReq = CompanionRequest.builder()
+                .fullName("Alice Perera")
+                .nicOrPassport("NIC199855443322")
+                .concessionType(ConcessionType.STUDENT)
+                .concessionRef("SLIIT-IT-8844")
+                .build();
+
+        MvcResult compResult = mockMvc.perform(post("/api/passenger/companions")
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(companionReq)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.fullName").value("Alice Perera"))
+                .andExpect(jsonPath("$.data.concessionType").value("STUDENT"))
+                .andReturn();
+
+        ApiResponse<CompanionResponse> compResp = objectMapper.readValue(
+                compResult.getResponse().getContentAsString(),
+                new TypeReference<>() {}
+        );
+        Long companionId = compResp.getData().getCompanionId();
+
+        // 2. List Companions
+        mockMvc.perform(get("/api/passenger/companions").header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].companionId").value(companionId));
+
+        // 3. Get Companion by ID
+        mockMvc.perform(get("/api/passenger/companions/" + companionId).header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.fullName").value("Alice Perera"));
+
+        // 4. Update Companion
+        CompanionRequest compUpdateReq = CompanionRequest.builder()
+                .fullName("Alice Perera Updated")
+                .nicOrPassport("NIC199855443322")
+                .concessionType(ConcessionType.SENIOR)
+                .concessionRef("NIC-SEN-1955")
+                .build();
+
+        mockMvc.perform(put("/api/passenger/companions/" + companionId)
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(compUpdateReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.fullName").value("Alice Perera Updated"))
+                .andExpect(jsonPath("$.data.concessionType").value("SENIOR"));
+
+        // 5. Delete Companion
+        mockMvc.perform(delete("/api/passenger/companions/" + companionId).header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Companion deleted successfully"));
+
+        // Verify empty list
+        mockMvc.perform(get("/api/passenger/companions").header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("5. Booking History: Fetch Passenger Bookings (Read-only)")
+    void testPassengerBookingHistory() throws Exception {
+        // Login as pre-seeded demo passenger
+        LoginRequest loginReq = LoginRequest.builder()
+                .username("passenger_demo")
+                .password("Pass@123")
+                .build();
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginReq)))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        ApiResponse<AuthResponse> staffAuth = objectMapper.readValue(
-                staffResult.getResponse().getContentAsString(),
+        ApiResponse<AuthResponse> auth = objectMapper.readValue(
+                loginResult.getResponse().getContentAsString(),
                 new TypeReference<>() {}
         );
-        String staffToken = "Bearer " + staffAuth.getData().getToken();
+        String token = "Bearer " + auth.getData().getToken();
 
-        // 1. Coordinator can access schedules and routes
-        mockMvc.perform(get("/api/schedules").header("Authorization", coordToken))
+        // Fetch user bookings history
+        mockMvc.perform(get("/api/bookings/my-bookings").header("Authorization", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isArray());
-
-        mockMvc.perform(get("/api/routes").header("Authorization", coordToken))
-                .andExpect(status().isOk());
-
-        // 2. Coordinator cannot access station endpoints (403 Forbidden)
-        mockMvc.perform(get("/api/station/daily-schedule/FOT").header("Authorization", coordToken))
-                .andExpect(status().isForbidden());
-
-        // 3. Station staff can access station endpoints
-        mockMvc.perform(get("/api/station/daily-schedule/FOT").header("Authorization", staffToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.stationCode").value("FOT"));
-
-        mockMvc.perform(post("/api/station/verify-ticket/TCK-9901").header("Authorization", staffToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.status").value("VERIFIED"));
-
-        // 4. Station staff cannot access schedules endpoint (403 Forbidden)
-        mockMvc.perform(get("/api/schedules").header("Authorization", staffToken))
-                .andExpect(status().isForbidden());
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].bookingReference").isNotEmpty())
+                .andExpect(jsonPath("$.data[0].trainName").isNotEmpty())
+                .andExpect(jsonPath("$.data[0].status").value("CONFIRMED"));
     }
 }
+
